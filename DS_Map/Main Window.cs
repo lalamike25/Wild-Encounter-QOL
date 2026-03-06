@@ -8050,6 +8050,11 @@ namespace DSPRE {
             Helpers.DisableHandlers();
 
             int currentIndex = _allTrainerNames.IndexOf(trainerComboBox.SelectedItem.ToString());
+            if(currentIndex == -1)//fail silently. Not sure why this sometimes happens. It gets the .selectedItem's name wrong or something
+            {
+                Helpers.EnableHandlers();
+                return;
+            }
             string suffix = "\\" + currentIndex.ToString("D4");
             var search = SearchText?.ToLower();
             string[] trNames = RomInfo.GetSimpleTrainerNames();
@@ -8057,7 +8062,7 @@ namespace DSPRE {
             bool error = currentIndex >= trNames.Length;
             currentTrainerFile = new TrainerFile(
                 new TrainerProperties(
-                    (ushort)trainerComboBox.SelectedIndex,
+                    (ushort)currentIndex,
                     new FileStream(RomInfo.gameDirs[DirNames.trainerProperties].unpackedDir + suffix, FileMode.Open)
                 ),
                 new FileStream(RomInfo.gameDirs[DirNames.trainerParty].unpackedDir + suffix, FileMode.Open),
@@ -8347,7 +8352,8 @@ namespace DSPRE {
             }
 
             /*Write to File*/
-            string indexStr = "\\" + trainerComboBox.SelectedIndex.ToString("D4");
+            var selectedIndex = _allTrainerNames.IndexOf(trainerComboBox.SelectedItem.ToString()).ToString("D4");
+            string indexStr = "\\" + selectedIndex;
             File.WriteAllBytes(RomInfo.gameDirs[DirNames.trainerProperties].unpackedDir + indexStr, currentTrainerFile.trp.ToByteArray());
             File.WriteAllBytes(RomInfo.gameDirs[DirNames.trainerParty].unpackedDir + indexStr, currentTrainerFile.party.ToByteArray());
 
